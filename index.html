@@ -3,1202 +3,761 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>热门APP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>APP福利导航站</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 全局样式 - 确保在电脑上显示为手机大小 */
-        html, body {
-            height: 100%;
+        * {
             margin: 0;
             padding: 0;
-            background-color: #f3f4f6;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html {
+            font-size: 14px;
+        }
+        
+      body {
+            font-family: 'Arial', sans-serif;
+            /* 修改背景为优雅渐变 */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            background-attachment: fixed;
+            color: #333;
             min-height: 100vh;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
         }
-        
-        /* 响应式容器 */
-        @media (max-width: 640px) {
-            body {
-                padding: 0;
-                background-color: white;
-            }
-        }
-        
-        /* 加载页面样式 */
-        #loadingPage {
+        .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
         }
         
-        .loading-content {
-            text-align: center;
-            max-width: 90%;
-            padding: 20px;
-        }
-        
-        .loading-logo {
-            font-size: 3rem;
-            color: #4cc9f0;
-            margin-bottom: 20px;
-            text-shadow: 0 0 15px rgba(76, 201, 240, 0.5);
-        }
-        
-        .loading-text {
-            font-size: 1.5rem;
-            color: #fff;
-            margin-bottom: 30px;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-        
-        /* 炫酷进度条样式 */
-        .progress-container {
-            width: 80%;
-            max-width: 300px;
-            height: 10px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        }
-        
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #4cc9f0 0%, #4361ee 50%, #3a0ca3 100%);
-            border-radius: 10px;
-            transition: width 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        .container {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255, 255, 255, 0.3) 50%, 
-                transparent 100%);
-            animation: shimmer 2s infinite;
+            margin: 0 auto;
+            padding: 10px;
         }
         
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        
-        .progress-text {
-            color: #fff;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            font-weight: 300;
-            letter-spacing: 0.5px;
-        }
-        
-        .loading-dots {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        
-        .dot {
-            width: 12px;
-            height: 12px;
-            background-color: #4cc9f0;
-            border-radius: 50%;
-            margin: 0 5px;
-            animation: pulse 1.5s infinite ease-in-out;
-        }
-        
-        .dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(0.8); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 1; }
-        }
-        
-        /* 主容器 - 自适应手机大小 */
-        .mobile-container {
-            width: 100%;
-            max-width: 100%;
-            min-height: 100vh;
-            background-color: white;
-            overflow-x: hidden;
-            position: relative;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-        
-        @media (min-width: 641px) {
-            .mobile-container {
-                max-width: 480px;
-                box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
-                margin: 20px auto;
-                border-radius: 20px;
-            }
-        }
-        
-        .mobile-container.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* 走马灯动画 */
-        @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        
-        .marquee {
-            animation: scroll 30s linear infinite;
-            display: flex;
-        }
-        
-        .marquee:hover {
-            animation-play-state: paused;
-        }
-        
-        /* 走马灯图标容器 - 正方形，自适应 */
-        .marquee-icon-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 60px;
-            height: 60px;
-            margin: 0 6px;
-            border-radius: 12px;
-            background-color: #f8fafc;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            flex-shrink: 0;
-        }
-        
-        @media (min-width: 375px) {
-            .marquee-icon-container {
-                width: 65px;
-                height: 65px;
-                margin: 0 8px;
-            }
-        }
-        
-        @media (min-width: 414px) {
-            .marquee-icon-container {
-                width: 70px;
-                height: 70px;
-                margin: 0 10px;
-            }
-        }
-        
-        .marquee-icon-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-            background-color: #eff6ff;
-        }
-        
-        .marquee-img {
-            width: 70%;
-            height: 70%;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-        
-        .marquee-icon-text {
-            font-size: 10px;
-            color: #3b82f6;
-            font-weight: 500;
-            text-align: center;
-            line-height: 1.2;
-            margin-top: 2px;
-        }
-        
-        /* 轮播图样式 - 完全自适应 */
+        /* 轮播图样式 - 移动端优化 */
         .carousel-container {
             position: relative;
             width: 100%;
+            margin: 10px auto;
             overflow: hidden;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            margin: 0 auto;
-            background-color: #f8fafc;
-        }
-        
-        @media (min-width: 375px) {
-            .carousel-container {
-                border-radius: 16px;
-            }
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            aspect-ratio: 16/9;
+            background-color: rgba(0, 0, 0, 0.3);
         }
         
         .carousel-slide {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
+            display: none;
             width: 100%;
-        }
-        
-        .carousel-item {
-            flex: 0 0 100%;
-            width: 100%;
-            position: relative;
-        }
-        
-        /* 修复轮播图图片自适应问题 */
-        .carousel-img-wrapper {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 比例 */
-            overflow: hidden;
-            border-radius: inherit;
-        }
-        
-        .carousel-img {
+            height: 100%;
+            object-fit: contain;
+            cursor: pointer;
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        }
+        
+        .carousel-slide.active {
             display: block;
         }
         
-        /* 确保图片链接覆盖整个区域 */
-        .carousel-item a {
-            display: block;
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
             width: 100%;
-            height: 100%;
-            position: relative;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            z-index: 10;
+            padding: 0 5px;
         }
         
-        /* 轮播图指示器 */
+        .carousel-nav button {
+            background-color: rgba(255, 255, 255, 0.6);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .carousel-nav button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .carousel-indicators {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            z-index: 10;
+            gap: 6px;
+        }
+        
         .carousel-indicator {
             width: 8px;
             height: 8px;
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.5);
-            margin: 0 3px;
             cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        @media (min-width: 375px) {
-            .carousel-indicator {
-                width: 10px;
-                height: 10px;
-                margin: 0 4px;
-            }
+            transition: all 0.3s;
         }
         
         .carousel-indicator.active {
             background-color: white;
-            transform: scale(1.3);
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+            transform: scale(1.2);
         }
         
-        /* 网格图标样式 - 正方形 */
-        .grid-icon-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 0;
-            padding-bottom: 100%; /* 保持正方形 */
-            background-color: #f8fafc;
-            border-radius: 12px;
-            position: relative;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-        }
-        
-        @media (min-width: 375px) {
-            .grid-icon-container {
-                border-radius: 16px;
-            }
-        }
-        
-        .grid-icon-container:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-            background-color: #eff6ff;
-        }
-        
-        .grid-icon-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8px;
-        }
-        
-        .grid-img {
-            width: 55%;
-            max-width: 36px;
-            height: auto;
-            object-fit: contain;
-            margin-bottom: 6px;
+        /* 小图片区域样式 - 移动端优化 */
+        .small-images {
+            margin: 15px 0;
+            padding: 10px;
             border-radius: 8px;
         }
         
-        .grid-icon-text {
-            font-size: 11px;
-            color: #3b82f6;
-            font-weight: 500;
-            text-align: center;
-            line-height: 1.2;
-            max-width: 90%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        
-        @media (min-width: 375px) {
-            .grid-icon-text {
-                font-size: 12px;
-            }
-        }
-        
-        /* 内容区域内边距 */
-        .content-section {
-            padding: 15px;
-        }
-        
-        @media (min-width: 375px) {
-            .content-section {
-                padding: 20px;
-            }
-        }
-        
-        /* 标题样式 */
         .section-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 15px;
             text-align: center;
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            font-weight: 600;
+            padding: 5px 0;
+        }
+        
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 移动端四列 */
+            gap: 8px;
+        }
+        
+        .small-image-container {
             position: relative;
-            padding-bottom: 8px;
+            overflow: hidden;
+            border-radius: 6px;
+            aspect-ratio: 1/1;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.2);
         }
         
-        @media (min-width: 375px) {
-            .section-title {
-                font-size: 1.3rem;
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-            }
+        .small-image-container:hover,
+        .small-image-container:active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
         
-        .section-title::after {
-            content: '';
+        .small-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-overlay {
             position: absolute;
             bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 3px;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            border-radius: 3px;
-        }
-        
-        @media (min-width: 375px) {
-            .section-title::after {
-                width: 60px;
-            }
-        }
-        
-        /* 滚动条样式 */
-        .marquee-wrapper {
-            overflow: hidden;
-            position: relative;
-            width: 100%;
-            padding: 8px 0;
-        }
-        
-        @media (min-width: 375px) {
-            .marquee-wrapper {
-                padding: 10px 0;
-            }
-        }
-        
-        /* 轮播按钮样式 */
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.8);
             color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            padding: 4px;
+            text-align: center;
+            font-size: 11px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+            font-weight: 500;
+        }
+        
+        .small-image-container:hover .image-overlay {
+            transform: translateY(0);
+        }
+        
+        /* 框架导航样式 - 移动端优化 */
+        .navigation-frame {
+            margin: 20px 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 移动端三列 */
+            gap: 8px;
+        }
+        
+        .nav-item {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 6px;
+            padding: 10px 5px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #dee2e6;
+            text-decoration: none;
+            color: #495057;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: none;
-            cursor: pointer;
-            z-index: 10;
-            transition: all 0.3s ease;
-            font-size: 0.8rem;
+            font-weight: 600;
+            font-size: 12px;
+            height: 45px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
-        @media (min-width: 375px) {
-            .carousel-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 0.9rem;
-            }
+        .nav-item:hover,
+        .nav-item:active {
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            color: #007bff;
         }
         
-        @media (min-width: 414px) {
-            .carousel-btn {
-                width: 40px;
-                height: 40px;
-            }
+        /* 高度响应式类 */
+        .hf60, .hf120, .hf180, .hf240 {
+            width: 100%;
+            margin: 5px 0;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
         
-        .carousel-btn:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-            transform: translateY(-50%) scale(1.1);
+        .hf60 { height: 60px; }
+        .hf120 { height: 120px; }
+        .hf180 { height: 180px; }
+        .hf240 { height: 240px; }
+        
+        /* 底部区域样式 */
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0 15px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
         }
         
-        .carousel-btn-prev {
-            left: 8px;
+        .footer-links a {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
         }
         
-        .carousel-btn-next {
-            right: 8px;
+        .footer-links a:hover,
+        .footer-links a:active {
+            background: linear-gradient(135deg, #0056b3, #004494);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0, 123, 255, 0.3);
         }
         
-        @media (min-width: 375px) {
-            .carousel-btn-prev {
-                left: 10px;
+        .footer {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 11px;
+            line-height: 1.5;
+            text-align: center;
+            border-radius: 8px;
+            border-left: 3px solid #007bff;
+        }
+        
+        /* 平板适配 */
+        @media (min-width: 768px) {
+            .container {
+                padding: 15px;
+                max-width: 750px;
             }
             
-            .carousel-btn-next {
-                right: 10px;
+            .images-grid {
+                grid-template-columns: repeat(6, 1fr); /* 平板六列 */
+                gap: 10px;
+            }
+            
+            .nav-grid {
+                grid-template-columns: repeat(4, 1fr); /* 平板四列 */
+                gap: 10px;
+            }
+            
+            .section-title {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            .nav-item {
+                font-size: 13px;
+                height: 50px;
+            }
+            
+            .image-overlay {
+                font-size: 12px;
+                padding: 5px;
             }
         }
         
-        /* 页脚样式 */
-        .footer {
-            text-align: center;
-            padding: 12px 15px;
-            color: #6b7280;
-            font-size: 0.8rem;
-            border-top: 1px solid #f3f4f6;
-            line-height: 1.4;
-        }
-        
-        @media (min-width: 375px) {
-            .footer {
-                font-size: 0.85rem;
-                padding: 15px;
+        /* 桌面适配 */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1000px;
+                padding: 20px;
             }
-        }
-        
-        /* 网格布局调整 */
-        .icon-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-        
-        @media (min-width: 375px) {
-            .icon-grid {
+            
+            .images-grid {
+                grid-template-columns: repeat(8, 1fr); /* 桌面八列 */
+                gap: 12px;
+            }
+            
+            .nav-grid {
+                grid-template-columns: repeat(6, 1fr); /* 桌面六列 */
                 gap: 12px;
             }
         }
         
-        @media (min-width: 414px) {
-            .icon-grid {
-                gap: 14px;
+        /* 小屏幕手机优化 */
+        @media (max-width: 360px) {
+            .images-grid {
+                grid-template-columns: repeat(3, 1fr); /* 小屏幕三列 */
+                gap: 6px;
+            }
+            
+            .nav-grid {
+                grid-template-columns: repeat(2, 1fr); /* 小屏幕两列 */
+                gap: 6px;
+            }
+            
+            .nav-item {
+                font-size: 11px;
+                height: 40px;
+                padding: 8px 3px;
+            }
+            
+            .section-title {
+                font-size: 15px;
+            }
+            
+            .footer-links a {
+                padding: 6px 12px;
+                font-size: 11px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 加载页面 -->
-    <div id="loadingPage">
-        <div class="loading-content">
-            <div class="loading-logo">
-                <i class="fas fa-rocket"></i>
+    <div class="overlay"></div>
+    
+    <div class="container">
+        <!-- 轮播图区域 -->
+        <div class="carousel-container">
+            <a href="https://45660801.sizled.com/?cid=310446" target="_blank">
+                <img class="carousel-slide active" src="https://img.alicdn.com/imgextra/i3/4183327079/O1CN01vQ2ysK22AEokQZeiA_!!4183327079.gif" alt="轮播图1">
+            </a>
+            <a href="https://yyqqcom0803118.hxbzfw.com/008xb39" target="_blank">
+                <img class="carousel-slide" src="https://img.alicdn.com/imgextra/i4/4183327079/O1CN01AwtIru22AEp7NzMLD_!!4183327079.gif" alt="轮播图2">
+            </a>
+            <a href="https://777995.50701647.com:507/ad88.html?pg6002#pg6002" target="_blank">
+                <img class="carousel-slide" src="https://28-psd.htr.neonsole.arounders.net:9481/232CPA/spk/black300x200-2.gif" alt="轮播图3">
+            </a>
+            <a href="https://2pg.91314434.cc/" target="_blank">
+                <img class="carousel-slide" src="https://imgsa.baidu.com/forum/pic/item/0b55b319ebc4b745a48c520589fc1e178a82158d.jpg" alt="轮播图4">
+            </a>
+            
+            <div class="carousel-nav">
+                <button id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+                <button id="nextBtn"><i class="fas fa-chevron-right"></i></button>
             </div>
-            <div class="loading-text">百款热门APP</div>
             
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
-            
-            <div class="progress-text" id="progressText">0%</div>
-            
-            <div class="loading-dots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+            <div class="carousel-indicators">
+                <span class="carousel-indicator active" data-index="0"></span>
+                <span class="carousel-indicator" data-index="1"></span>
+                <span class="carousel-indicator" data-index="2"></span>
+                <span class="carousel-indicator" data-index="3"></span>
             </div>
         </div>
-    </div>
-
-    <!-- 主内容容器 -->
-    <div class="mobile-container">
-        <!-- 顶部走马灯图标 -->
-        <section class="content-section pt-4">
-            <h2 class="section-title">热门APP</h2>
-            <div class="marquee-wrapper">
-                <div class="marquee">
-                    <!-- 走马灯图标 - 使用图片 -->
-                    <!-- 第一组图标 -->
-                    <a href="https://pp.eeennn136.xyz/website/detail/id/208.html" target="_blank" class="marquee-icon-container">
-                        <img src="https://daohhh.tutu1599.top/img/tu/pttb.jpg" 
-                             alt="Hot.1" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.1
-                        </span>
-                    </a>
-                    <a href="https://mk8c3ex2yxe.2401281.cc/?id=453761449" target="_blank" class="marquee-icon-container">
-                        <img src="https://cdn.baiducdn2img.top/app/site/pg245tb.gif" 
-                             alt="Hot.2" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.2</span>
-                    </a>
-                    <a href="http://ryaud-177937303.ap-east-1.elb.amazonaws.com/987x60/?shareName=987x60" target="_blank" class="marquee-icon-container">
-                        <img src="https://cdn.dabai4.com/xpj150x150.gif" 
-                             alt="Hot.3" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.3</span>
-                    </a>
-                    <a href="https://146.103.83.187/?cid=9733257" target="_blank" class="marquee-icon-container">
-                        <img src="https://img.ah7907.com/h388-150x150.gif" 
-                             alt="Hot.4" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.4</span>
-                    </a>
-                    <a href="https://aodl1dfg5bfe-108.61160111.com/?shareName=292x13" target="_blank" class="marquee-icon-container">
-                        <img src="https://img1.ah7907.com/292-150x150.gif" 
-                             alt="Hot.5" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.5</span>
-                    </a>
-                    <a href="https://pp.eeennn136.xyz/website/detail/id/272.html" target="_blank" class="marquee-icon-container">
-                        <img src="https://211.43.148.203:5012/siteadmin/upload/img/1990406837946658817.avif" 
-                             alt="Hot.6" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.6</span>
-                    </a>
-                    <a href="http://345-778-yaojiujiuyao-312-473519356.ap-northeast-2.elb.amazonaws.com:8991/?shareName=1991x06" target="_blank" class="marquee-icon-container">
-                        <img src="https://img1.ah7907.com/hk1991-200x200.gif" 
-                             alt="Hot.7" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.7</span>
-                    </a>
-                    <a href="https://xn--487-s18d732cjtj2h4a.xn--chqu6ls0eby2a4uk8o3b.jhqmm.com/?cid=963641" target="_blank" class="marquee-icon-container">
-                        <img src="https://img.xmshengchao.com:1688/images/716fbc19-d9df-4153-87e6-a9ce468c2ce8" 
-                             alt="Hot.8" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.8</span>
-                    </a>
-                    <a href="https://wosdb1df6h4-528.shxy373.com/?shareName=545x69" target="_blank" class="marquee-icon-container">
-                        <img src="https://cdn.baiducdn2img.top/app/site/pg245tb.gif" 
-                             alt="Hot.9" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.9</span>
-                    </a>
-                    <a href="https://146.103.76.3:5001/?cid=7490032" target="_blank" class="marquee-icon-container">
-                        <img src="https://146.103.87.32:5030/siteadmin/upload/img/1968510446699683842.gif" 
-                             alt="Hot.10" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.10</span>
-                    </a>
-                    
-                    <!-- 第二组图标（用于无缝循环） -->
-                    <a href="https://pp.eeennn136.xyz/website/detail/id/208.html" target="_blank" class="marquee-icon-container">
-                        <img src="https://146.103.87.32:5030/siteadmin/upload/img/1968510446699683842.gif" 
-                             alt="Hot.1" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.1</span>
-                    </a>
-                    <a href="https://www.google.com" target="_blank" class="marquee-icon-container">
-                        <img src="https://cdn.baiducdn2img.top/app/site/pg245tb.gif" 
-                             alt="Hot.2" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.2</span>
-                    </a>
-                    <a href="https://www.Hot.3.com" target="_blank" class="marquee-icon-container">
-                        <img src="https://cdn.dabai4.com/xpj150x150.gif" 
-                             alt="Hot.3" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.3</span>
-                    </a>
-                    <a href="https://146.103.83.187/?cid=9733257" target="_blank" class="marquee-icon-container">
-                        <img src="https://img.ah7907.com/h388-150x150.gif" 
-                             alt="Hot.4" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.4</span>
-                    </a>
-                    <a href="https://aodl1dfg5bfe-108.61160111.com/?shareName=292x13" target="_blank" class="marquee-icon-container">
-                        <img src="https://img1.ah7907.com/292-150x150.gif" 
-                             alt="Hot.5" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.5</span>
-                    </a>
-                    <a href="https://pp.eeennn136.xyz/website/detail/id/272.html" target="_blank" class="marquee-icon-container">
-                        <img src="https://211.43.148.203:5012/siteadmin/upload/img/1990406837946658817.avif" 
-                             alt="Hot.6" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.6</span>
-                    </a>
-                    <a href="https://www.Hot.7.com" target="_blank" class="marquee-icon-container">
-                        <img src="https://img1.ah7907.com/hk1991-200x200.gif" 
-                             alt="Hot.7" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.7</span>
-                    </a>
-                    <a href="https://xn--487-s18d732cjtj2h4a.xn--chqu6ls0eby2a4uk8o3b.jhqmm.com/?cid=963641" target="_blank" class="marquee-icon-container">
-                        <img src="https://img.xmshengchao.com:1688/images/716fbc19-d9df-4153-87e6-a9ce468c2ce8" 
-                             alt="Hot.8" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.8</span>
-                    </a>
-                    <a href="https://wosdb1df6h4-528.shxy373.com/?shareName=545x69" target="_blank" class="marquee-icon-container">
-                        <img src="https://cdn.baiducdn2img.top/app/site/pg245tb.gif" 
-                             alt="Hot.9" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.9</span>
-                    </a>
-                    <a href="https://146.103.76.3:5001/?cid=7490032" target="_blank" class="marquee-icon-container">
-                        <img src="https://146.103.87.32:5030/siteadmin/upload/img/1968510446699683842.gif" 
-                             alt="Hot.10" class="marquee-img">
-                        <span class="marquee-icon-text">Hot.10</span>
-                    </a>
-                </div>
-            </div>
-        </section>
-        <!-- 中间图片轮播 -->
-        <section class="content-section">
-            
-            <div class="carousel-container">
-                <div class="carousel-slide">
-                    <!-- 轮播图片链接数组 - 方便替换 -->
-                    <!-- 注意：使用16:9比例的图片以确保最佳显示效果 -->
-                    <div class="carousel-item">
-                        <a href="http://ryaud-177937303.ap-east-1.elb.amazonaws.com/987x60/?shareName=987x60" target="_blank">
-                            <div class="carousel-img-wrapper">
-                                <img src="https://olrlw58e.5rrlenryyei82d.cyou/upload/vod/20251123-1/4a9a42b34777a6e2b17576b9d52e9a5f.gif" 
-                                     alt="App Store" class="carousel-img">
-                            </div>
-                        </a>
-                    </div>
-                    <div class="carousel-item">
-                        <a href="https://64.f64274929.com/" target="_blank">
-                            <div class="carousel-img-wrapper">
-                                <img src="https://qrsa.yxai123.com/9864a346cb19ec5b0bb352fb6c059678.gif" 
-                                     alt="Google Play" class="carousel-img">
-                            </div>
-                        </a>
-                    </div>
-                    <div class="carousel-item">
-                        <a href="https://45660801.sizled.com/?cid=310446" target="_blank">
-                            <div class="carousel-img-wrapper">
-                                <img src="https://img.alicdn.com/imgextra/i3/4183327079/O1CN01vQ2ysK22AEokQZeiA_!!4183327079.gif" 
-                                     alt="Microsoft Store" class="carousel-img">
-                            </div>
-                        </a>
-                    </div>
-                    <div class="carousel-item">
-                        <a href="https://c1121h3b.5086625.top:5088/facai.html?xm8050" target="_blank">
-                            <div class="carousel-img-wrapper">
-                                <img src="https://xm99.img4758972832.com:5658/8888/xm/5088/320x185.gif" 
-                                     alt="Mobile Apps" class="carousel-img">
-                            </div>
-                        </a>
-                    </div>
-                    <div class="carousel-item">
-                        <a href="https://afs.i1pu5d.cyou/?channelCode=777hgllq" target="_blank">
-                            <div class="carousel-img-wrapper">
-                                <img src="https://www.uxmum.top/images/683acd82bb50e4b4629db017.gif" 
-                                     alt="App Development" class="carousel-img">
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- 左右按钮 -->
-                <button onclick="changeSlide(-1)" class="carousel-btn carousel-btn-prev">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button onclick="changeSlide(1)" class="carousel-btn carousel-btn-next">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                
-                <!-- 指示器 -->
-                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-                    <div class="carousel-indicator active" data-index="0"></div>
-                    <div class="carousel-indicator" data-index="1"></div>
-                    <div class="carousel-indicator" data-index="2"></div>
-                    <div class="carousel-indicator" data-index="3"></div>
-                    <div class="carousel-indicator" data-index="4"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 底部图标网格 -->
-        <section class="content-section pb-8">
-            <h2 class="section-title">站长推荐APP</h2>
-            
-            <div id="iconGrid" class="icon-grid">
-                <!-- 网格图标 - 使用图片 -->
-                <div class="grid-item relative">
-                    <a href="https://afs.i1pu5d.cyou/?channelCode=777hgllq" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://raw.githubusercontent.com/xingxing890/baidu.com/refs/heads/main/images/document_4904483972039312939.gif" 
-                                 alt="真实约炮" class="grid-img">
-                            <span class="grid-icon-text">真实约炮</span>
-                        </div>
-                    </a>
-                </div>
-				
-						 
-						 
-						 	
-						<div class="grid-item relative">
-                    <a href="https://cyzd.top/?ref=hanime1" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://daohhh.tutu1599.top/img/tu/pttb.jpg" 
-                                 alt="全国可约" class="grid-img">
-                            <span class="grid-icon-text">全国可约</span>
-                        </div>
-                    </a>
-                </div>
-				
-						 
-						 
-						 
-						 <div class="grid-item relative">
-                    <a href="https://9e21.ctiduwcp.xyz/chan/lldapp0209/CPgu" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://ads.cdnetworks.link/20250523-1/002cd8292897795a9c26529247e0cd8b.gif" 
-                                 alt="免费萝莉岛" class="grid-img">
-                            <span class="grid-icon-text">免费萝莉岛</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://446cb.pbqarqq.com/chan/GS4304/aKC8f" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://ads.cdnetworks.link/20251106-1/39d175a356986878398beb760b51df1a.gif" 
-                                 alt="免费X站" class="grid-img">
-                            <span class="grid-icon-text">免费X站</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://7ba4b.qxivqbg.xyz/chan-5943/aff-mHMJU" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://ads.cdnetworks.link/20251106-1/3dbb9700bb10fde70b419b030a4ab358.webp" 
-                                 alt="视频宝盒" class="grid-img">
-                            <span class="grid-icon-text">视频宝盒</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://two1016.n7g3f4f7.work/avjj30-19" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://ads.cdnetworks.link/20251106-1/037484c54393b384fd572e548d70bc72.gif" 
-                                 alt="涩漫" class="grid-img">
-                            <span class="grid-icon-text">涩漫</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://89cademine.xyz/?u=QIP7m3oi7c8m" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://raw.githubusercontent.com/xingxing890/baidu.com/refs/heads/main/images/document_4904483972039312939.gif" 
-                                 alt="全国空降" class="grid-img">
-                            <span class="grid-icon-text">全国空降</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://www.金沙国际.com" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://img97.ma5000.com/eba688a37a854891e5b550d5127d34cd.gif" 
-                                 alt="金沙国际" class="grid-img">
-                            <span class="grid-icon-text">金沙国际</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://pp.eeennn136.xyz/website/detail/id/219.html" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://kyimg.jxwxai.com/ac2dd98808640237b1ce441ea4a98a30.gif" 
-                                 alt="开元棋牌" class="grid-img">
-                            <span class="grid-icon-text">开元棋牌</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://pp.eeennn136.xyz/website/detail/id/208.html" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://imgsa.baidu.com/forum/pic/item/3b292df5e0fe9925afd21c4172a85edf8cb171c0.jpg" 
-                                 alt="开元棋牌" class="grid-img">
-                            <span class="grid-icon-text">开元棋牌</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://mk8c3ex2yxe.2401281.cc/?id=453761449" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://cdn.baiducdn2img.top/app/site/pg245tb.gif" 
-                                 alt="PG娱乐" class="grid-img">
-                            <span class="grid-icon-text">PG娱乐</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="http://ryaud-177937303.ap-east-1.elb.amazonaws.com/987x60/?shareName=987x60" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://cdn.dabai4.com/xpj150x150.gif" 
-                                 alt="澳门普京" class="grid-img">
-                            <span class="grid-icon-text">澳门普京</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://146.103.83.187/?cid=9733257" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://img.ah7907.com/h388-150x150.gif" 
-                                 alt="太阳城" class="grid-img">
-                            <span class="grid-icon-text">太阳城</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://aodl1dfg5bfe-108.61160111.com/?shareName=292x13" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://img1.ah7907.com/292-150x150.gif" 
-                                 alt="威尼斯人" class="grid-img">
-                            <span class="grid-icon-text">威尼斯人</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-				<div class="grid-item relative">
-                    <a href="https://pp.eeennn136.xyz/website/detail/id/272.html" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://211.43.148.203:5012/siteadmin/upload/img/1990406837946658817.avif" 
-                                 alt="拉斯维加斯" class="grid-img">
-                            <span class="grid-icon-text">拉斯维加斯</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-				
-				
-				
-                <div class="grid-item relative">
-                    <a href="http://345-778-yaojiujiuyao-312-473519356.ap-northeast-2.elb.amazonaws.com:8991/?shareName=1991x06" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://img1.ah7907.com/hk1991-200x200.gif" 
-                                 alt="澳门金沙" class="grid-img">
-                            <span class="grid-icon-text">澳门金沙</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://xn--487-s18d732cjtj2h4a.xn--chqu6ls0eby2a4uk8o3b.jhqmm.com/?cid=963641" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://img.xmshengchao.com:1688/images/716fbc19-d9df-4153-87e6-a9ce468c2ce8" 
-                                 alt="必赢国际" class="grid-img">
-                            <span class="grid-icon-text">必赢国际</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://wosdb1df6h4-528.shxy373.com/?shareName=545x69" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://img1.ah7907.com/x545-150x150.gif" 
-                                 alt="新葡京" class="grid-img">
-                            <span class="grid-icon-text">新葡京</span>
-                        </div>
-                    </a>
-                </div>
-                <div class="grid-item relative">
-                    <a href="https://146.103.76.3:5001/?cid=7490032" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://146.103.87.32:5030/siteadmin/upload/img/1968510446699683842.gif" 
-                                 alt="金沙娱乐" class="grid-img">
-                            <span class="grid-icon-text">金沙娱乐</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-				
-				<div class="grid-item relative">
-                    <a href="https://d4g8htrq8d1fu.cloudfront.net/?dc=CZZ375" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://img.share9527.cc/gif/w_20250628_ND00004.gif" 
-                                 alt="涩漫抖抖" class="grid-img">
-                            <span class="grid-icon-text">涩漫抖抖</span>
-                        </div>
-                    </a>
-                </div>
-				
-					<div class="grid-item relative">
-                    <a href="https://d4g8htrq8d1fu.cloudfront.net/?dc=CZZ375" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://daohhh.tutu1599.top/img/tu/lu.jpg" 
-                                 alt="禁漫天堂" class="grid-img">
-                            <span class="grid-icon-text">禁漫天堂</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-				
-						<div class="grid-item relative">
-                    <a href="https://cyzd.top/?ref=hanime1" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://daohhh.tutu1599.top/img/tu/zatt.jpg" 
-                                 alt="百万漫画" class="grid-img">
-                            <span class="grid-icon-text">百万漫画</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-						<div class="grid-item relative">
-                    <a href="https://mrqpp126.gucuxv.cn/appdown/index.html?id=148" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://5c0a7e.soha7320.com/v3afiles/img_url-2cf246c5814ea34d06165d7708b3dcc9.jpg" 
-                                 alt="每日推荐" class="grid-img">
-                            <span class="grid-icon-text">每日推荐</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-						<div class="grid-item relative">
-                    <a href="https://d2r21es44prcn9.cloudfront.net/?dc=CZZ375" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://img.share9527.cc/gif/w_20250628_ND00002.gif" 
-                                 alt="小黄片" class="grid-img">
-                            <span class="grid-icon-text">小黄片</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-				
-				
-				
-				<div class="grid-item relative">
-                    <a href="https://crqwerty.vxewyd.com/l0.html?c=763f" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://f3c844.uwap2942.com/v3afiles/img_url-7da968780c744da234e1b7093895b125.jpg" 
-                                 alt="成人免费" class="grid-img">
-                            <span class="grid-icon-text">成人免费</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-				<div class="grid-item relative">
-                    <a href="https://oilbb5.cfd/" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="	https://daohhh.tutu1599.top/img/tu/aaaa.webp" 
-                                 alt="成人视频<" class="grid-img">
-                            <span class="grid-icon-text">成人视频</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-					
-						<div class="grid-item relative">
-                    <a href="https://aiaixxpp.github.io/HEZI.com/" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="https://tp.suppercacheimages.top/LightPicture_y/2025/12/3403971edfc49df5.cache" 
-                                 alt="SWAG" class="grid-img">
-                            <span class="grid-icon-text">SWAG</span>
-                        </div>
-                    </a>
-                </div>
-				
-				
-            </div>
-        </section>
         
-        <!-- 页脚 -->
+        <!-- 小图片区域 -->
+        <div class="small-images">
+            <h2 class="section-title">热门应用</h2>
+            <div class="images-grid" id="imagesGrid">
+                <!-- 小图片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+      
+
+        <!-- 框架导航区域 -->
+        <div class="navigation-frame">
+            <h2 class="section-title">热门导航</h2>
+            <div class="nav-grid" id="navGrid">
+                <!-- 导航项将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 底部链接区域 -->
+        <div class="footer-links">
+            <a href="javascript:void(0)" onclick="addFavorite(window.location,document.title)">收藏本站</a>
+            <a href="https://t.me/GOOG162/" target="_blank">关于我们</a>
+            <a href="https://t.me/GOOG162/" target="_blank">商务合作</a>
+        </div>
+
+        <!-- 底部说明 -->
         <div class="footer">
-            <a href="https://t.me/aohu1688" target="_blank">广告合作</a>
-            <p>© 2022 百款热门APP</p>
-            <p class="mt-1">All Rights Reserved</p>
+            声明：本站所有站点收集于全球互联网，内容与本站无关，仅为非大陆地区的境外华裔人士提供参考，若来访者国家法律不允许，请自行离开！<br><br>
+            Warning: The website collected by this website comes from the global Internet. The website content has nothing to do with this site. The website is maintained in the United States and is protected by US law. If the visitor's laws do not allow it, please leave by yourself!<br><br>
+            Copyright © 2025 福利导航. All Rights Reserved.
         </div>
     </div>
 
     <script>
-        // 加载页面进度条功能
-        const loadingPage = document.getElementById('loadingPage');
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
-        const mobileContainer = document.querySelector('.mobile-container');
-        
-        let progress = 0;
-        const totalSteps = 100;
-        const stepTime = 30; // 每步时间(ms)
-        const finalDelay = 500; // 最后延迟时间(ms)
-        
-        // 模拟加载过程
-        function simulateLoading() {
-            if (progress < totalSteps) {
-                progress += 1;
-                const progressPercent = Math.min(progress, 100);
-                
-                // 更新进度条
-                progressBar.style.width = `${progressPercent}%`;
-                progressText.textContent = `${progressPercent}%`;
-                
-                // 模拟不同的加载速度
-                let nextStepTime = stepTime;
-                if (progress < 30) {
-                    nextStepTime = 50; // 开始慢
-                } else if (progress < 70) {
-                    nextStepTime = 20; // 中间快
-                } else if (progress < 95) {
-                    nextStepTime = 80; // 接近完成时变慢
-                } else {
-                    nextStepTime = 150; // 最后几步更慢
-                }
-                
-                setTimeout(simulateLoading, nextStepTime);
-            } else {
-                // 加载完成
-                setTimeout(() => {
-                    loadingPage.style.opacity = '0';
-                    loadingPage.style.visibility = 'hidden';
-                    
-                    // 显示主内容
-                    mobileContainer.classList.add('show');
-                }, finalDelay);
-            }
-        }
-        
-        // 轮播功能
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.carousel-item');
-        const slideContainer = document.querySelector('.carousel-slide');
+        // 轮播图功能
+        const slides = document.querySelectorAll('.carousel-slide');
         const indicators = document.querySelectorAll('.carousel-indicator');
-        let autoSlideInterval;
-
-        // 初始化轮播
-        function initCarousel() {
-            updateCarousel();
-            resetAutoSlide();
-            
-            // 为指示器添加点击事件
-            indicators.forEach(indicator => {
-                indicator.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    goToSlide(index);
-                });
-            });
-        }
-
-        // 显示指定幻灯片
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentSlide = 0;
+        let slideInterval;
+        
         function showSlide(index) {
             slides.forEach(slide => slide.classList.remove('active'));
             indicators.forEach(indicator => indicator.classList.remove('active'));
             
             slides[index].classList.add('active');
             indicators[index].classList.add('active');
-            
-            // 更新轮播位置
-            slideContainer.style.transform = `translateX(-${index * 100}%)`;
-        }
-
-        // 切换到下一张/上一张
-        function changeSlide(direction) {
-            currentSlide += direction;
-            if (currentSlide >= slides.length) currentSlide = 0;
-            if (currentSlide < 0) currentSlide = slides.length - 1;
-            showSlide(currentSlide);
-            resetAutoSlide();
-        }
-
-        // 跳转到指定幻灯片
-        function goToSlide(index) {
             currentSlide = index;
-            showSlide(currentSlide);
-            resetAutoSlide();
         }
-
-        // 自动轮播
-        function autoSlide() {
-            changeSlide(1);
+        
+        function nextSlide() {
+            const index = (currentSlide + 1) % slides.length;
+            showSlide(index);
         }
-
-        // 重置自动轮播计时器
-        function resetAutoSlide() {
-            clearInterval(autoSlideInterval);
-            autoSlideInterval = setInterval(autoSlide, 4000);
+        
+        function prevSlide() {
+            const index = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(index);
         }
-
-        // 更新轮播指示器状态
-        function updateCarousel() {
-            showSlide(currentSlide);
+        
+        function startAutoSlide() {
+            slideInterval = setInterval(nextSlide, 5000);
         }
-
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            // 开始加载进度条
-            simulateLoading();
-            
-            // 初始化轮播
-            initCarousel();
-            
-            // 轮播图自适应图片尺寸
-            window.addEventListener('resize', function() {
-                updateCarousel();
-            });
-            
-            // 添加图标的函数（示例）
-            window.addIcon = function(imageUrl, linkUrl, appName) {
-                const grid = document.getElementById('iconGrid');
-                
-                const iconDiv = document.createElement('div');
-                iconDiv.className = 'grid-item relative';
-                iconDiv.innerHTML = `
-                    <a href="${linkUrl}" target="_blank" class="grid-icon-container">
-                        <div class="grid-icon-content">
-                            <img src="${imageUrl}" alt="${appName}" class="grid-img">
-                            <span class="grid-icon-text">${appName}</span>
-                        </div>
-                    </a>
-                `;
-                
-                grid.appendChild(iconDiv);
-            };
-            
-            // 示例：通过代码添加图标（您可以取消注释来测试）
-            // setTimeout(() => {
-            //     addIcon('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Visual_Studio_Code_1.35_icon.svg/40px-Visual_Studio_Code_1.35_icon.svg.png', 'https://code.visualstudio.com', 'VS Code');
-            // }, 1000);
+        
+        function stopAutoSlide() {
+            clearInterval(slideInterval);
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            nextSlide();
+            stopAutoSlide();
+            startAutoSlide();
         });
+        
+        prevBtn.addEventListener('click', () => {
+            prevSlide();
+            stopAutoSlide();
+            startAutoSlide();
+        });
+        
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                showSlide(index);
+                stopAutoSlide();
+                startAutoSlide();
+            });
+        });
+        
+        // 触摸滑动支持
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.querySelector('.carousel-container').addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+            stopAutoSlide();
+        });
+        
+        document.querySelector('.carousel-container').addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            } else if (touchEndX > touchStartX + 50) {
+                prevSlide();
+            }
+            startAutoSlide();
+        });
+        
+        // 开始自动轮播
+        startAutoSlide();
+        
+        // 生成小图片
+        function generateImages() {
+            const imagesGrid = document.getElementById('imagesGrid');
+            imagesGrid.innerHTML = '';
+            
+            // 图片数据：包含URL、标题和链接
+            const imageData = [
+                { url: 'https://www.yntbwk-376592.cc/mgm/mgmicon150.gif', title: '澳门美高梅', link: ' https://erknj.12-78-xz-xrismjjtwix.cc/?cid=3807419' },
+                { url: 'https://img.alicdn.com/imgextra/i3/4183327079/O1CN01HyMWdZ22AErPcPiLu_!!4183327079.gif', title: '澳门新葡京', link: ' https://zzaa3731230177.ymhhbk.com/?cid=4138941 ' },
+                { url: 'https://imgsa.baidu.com/forum/pic/item/3bf33a87e950352a95d5d61a1543fbf2b2118b68.jpg', title: '286娱乐', link: 'https://2pg.91314434.cc/' },
+                { url: 'https://img.alicdn.com/imgextra/i3/4183327079/O1CN01HFS5yY22AEolWlnDW_!!4183327079.gif', title: '新普京', link: 'https://45660801.sizled.com/?cid=310446' },
+                { url: 'https://img.alicdn.com/imgextra/i4/4183327079/O1CN01APppyC22AEpC1WJKk_!!4183327079.gif', title: '葡京赌场', link: 'https://yyqqcom0803118.hxbzfw.com/008xb39' },
+                { url: 'https://img.alicdn.com/imgextra/i2/4183327079/O1CN018c9orl22AEr2BCFoF_!!4183327079.gif', title: 'PG电子', link: ' https://20251213.dpskdd.com/?cid=8768653 ' },
+                { url: 'https://img.xmshengchao.com:1688/images/9c34af05-81b9-4d1f-be63-734d70262b44', title: '大發赌场', link: 'https://487平等公正.爱国敬业.新疆铁道职业技术学院.com:26548/GAgpj' },
+                { url: 'https://qrsa.yxai123.com/f1067f057f9f3415205bc5de44bd7d5b.gif', title: '澳门葡京', link: 'https://64.f64274929.com/' },
+                
+                { url: 'https://img.alicdn.com/imgextra/i1/4183327079/O1CN01Fa2eIp22AEqP1uau8_!!4183327079.gif', title: '开元棋牌', link: ' https://vvcc4641230129.sjztmm.com/?cid=464lj100 ' },
+                { url: 'https://v.山东面粉.com/e20250506_1955_1.gif', title: '魅影视频', link: 'https://3f2.zvzsuql.cc/chan/max0034/xFYE#/' },
+                { url: 'https://img.alicdn.com/imgextra/i1/4183327079/O1CN01iClsP122AErQzP2Fl_!!4183327079.gif', title: '高美瓶', link: 'https://20251230.ffqilo.com/?cid=9624611' },
+                { url: 'https://ys.fhgjds.com/i/wns99%E7%83%AD-150-150-1.gif', title: '下载送888', link: 'https://j8vip163.com/' },
+                { url: 'https://2015.rsetbre454.com/508166/150x150.gif', title: '注册送6666', link: 'https://146.103.87.104:5001/?dl=$5bzgh3$CNY$2' },
+                { url: 'https://22229999.cc/26a45d83139642f29ad79e28816f1b91.gif', title: '澳门新普京', link: 'https://w7771558.vip/' },
+                
+                { url: 'https://img.alicdn.com/imgextra/i3/3382900570/O1CN01CmdZrx1G56p8f4xBE_!!3382900570.gif', title: '澳门威尼斯', link: 'https://www.9725756.com/' },
+               
+			    { url: 'https://tupiantuoguan.top/mimi/diditv.webp', title: '滴滴TV', link: 'https://t0x0.6gdpkvv5.cc/E2XRPH66' },
+				 
+			   { url: 'https://tupiantuoguan.top/mimi/kuaimao.webp', title: '快猫', link: 'https://duva2zhqeixf2.cloudfront.net?dc=YJWKCC' },
+              
+			  { url: 'https://img.erpweb.eu.org/imgs/2025/08/3a55eb75b93470dd.png', title: '91POM', link: 'https://d1qa4ihc9da1a2.cloudfront.net?dc=YJWKCC' },
+			  
+			    { url: 'https://tupiantuoguan.top/mimi/madoumianfei.gif', title: '麻豆', link: 'https://s8agkj361.hn7ejrnt.cc?channelCode=DE3QT2LZ' },
+				
+				  { url: 'https://tupiantuoguan.top/mimi/douyinzhongwen.webp', title: 'TI中文', link: 'https://0167.wnvilxo.xyz/chan/GS0220/jKKK' },
+				 { url: 'https://imagses.com/i/2025/04/29/101556.gif', title: 'BI短视频', link: 'https://d24124wjyk21kb.cloudfront.net/?dc=YJWKCC/' },
+				 { url: 'https://tupiantuoguan.top/mimi/oiojinman.webp', title: 'OIO浸满', link: 'https://d2n3j81nnwpb19.cloudfront.net?dc=YJWKCC' },
+				{ url: 'https://img.ccc5sss.cc/upload/site/20250125-1/1637bc99b08e9b9e7846948e5508f845.gif', title: '91MAX', link: 'https://arac3j.qygnf7ig.top/xgys-jhxgys2133' },
+				
+                { url: 'https://fcw1.site/i/2024/12/31/qu0xc4.gif', title: '首存送8888', link: 'https://gdh8869.com/' },
+                { url: 'https://aa57566257.com/74ed3c52a5074882a505edbe2254cd02.gif', title: 'PG电子城', link: 'https://77897vv.cc:57777/' },
+                { url: 'https://bb82195965.com/35902215d5a84199b3d8a9f9c8155a7b.gif', title: '澳门金沙', link: 'https://w7773381.vip/' },
+                { url: 'https://collision3550.top/b7307118fb42b64017dea3e5f313a9c8.gif', title: 'PG娱乐城', link: 'https://www.9909042.com/?&coverStatus=1&shareSource=0' },
+                { url: 'https://img.ccc5sss.cc/upload/site/202104/6087c2750b10b.gif', title: '同城约炮', link: 'https://eqyqp.71utpj.com:10300/?code=640314&version=v13&downtime=3' },
+                { url: 'https://img.erpweb.eu.org/imgs/2025/09/b0fca22fffdb5aee.png', title: '哔咔漫画', link: 'https://aplsof2fd.flirnapolfwemvrybhszorex.com/ky/46869/o1h7d6bk' },
+                { url: 'https://tupiantuoguan.top/mimi/91shipin.webp', title: '91视频', link: 'https://qx202.xss20.com/aakkdd-10' },
+                { url: 'https://vnsimg.hfzkgw.com//0668bc4ba6cf6d980af8bd5b7644aea4.gif', title: '一投即中', link: 'https://85.211.176.173:7885/?cid=6484819' },
+                   { url: 'https://tupiantuoguan.top/mimi/tantan.webp', title: '探探短视频', link: 'https://dka7.o3b5z3q4.work/aakkdd-47' },
+{ url: 'https://tupiantuoguan.top/mimi/caomeipojie.webp', title: '草莓破解', link: 'https://jrttik.xyhlsmx.com/land/?channelCode=196.html' },
+{ url: 'https://imagses.com/i/2025/11/26/155502.gif', title: '萝莉塔', link: 'https://d2qi8ng2gj5bi6.cloudfront.net?dc=YJWKCC' },
+{ url: 'https://tupiantuoguan.top/mimi/baipiaozhijia.webp', title: '白嫖之家', link: 'https://056h2.o3t4w1q2.work/aakkdd-4700' },
+{ url: 'https://ck233ck.xl7sh9o.work/7Adgm0OmcKrx8pP0.gif', title: '黄色仓库', link: 'https://kmaet.xss24.com/my22-15' },
+{ url: 'https://tupiantuoguan.top/mimi/tangxni.gif', title: '糖心破解2', link: 'https://oi333kz10.4ndtbucz.cc?channelCode=643VVJPE' },
+				{url:'https://tupiantuoguan.top/mimi/mugouyuan.webp', title: '母狗园', link:'https://5la8.xss13.com/aakkdd-32'},
+{url:'https://imagses.com/i/2025/11/21/155115.gif', title: '两年半', link:'https://dagf38orai95w.cloudfront.net/?dc=SYa756'},
+{url:'https://tupiantuoguan.top/mimi/zhongkoushe.webp', title: '重口味社', link:'https://f92wa.xss22.com/aakkdd-33'},
+{url:'https://tupiantuoguan.top/mimi/douban.webp', title: '豆瓣破解', link:'https://aaa66ky.qnabg56n.cc?channelCode=5MMBVQWG'},
+{url:'https://i.postimg.cc/sDGVspd9/luke-2.gif', title: '撸客', link:'https://d38t9tk7zscaa2.cloudfront.net?dc=look016'},
+{url:'https://img.tupiantuoguan.top/mimi/2025-5-2.gif', title: 'JKF', link:'https://6kq.gu7mkswf.cc?channelCode=TF8EA20P'},
+				
+				{ url: 'https://tupiantuoguan.top/mimi/pzhan.gif', title: '中国P站', link: 'https://tupiantuoguan.top/mimi/pzhan.gif' },
+				{ url: 'https://www.yvtlq.top/images/35/200x200-asb-1.gif', title: '涩爱播', link: 'https://uernwc.nzch49.com:10300/v20/?h=1767135965128&tj=None&channelCode=430001' },
+				{ url: 'https://tupiantuoguan.top/mimi/xzhan.gif', title: '中文X站', link: 'https://v0gxd3mh.4uqbz9ry.cc/?channelCode=CUGHRCJO/' },
+				
+				{ url: 'https://tupiantuoguan.top/mimi/yaojingdongman.gif', title: '妖精动漫', link: 'https://d2ume3dtlb1slt.cloudfront.net/?dc=YJWKCC/' },
+				
+				{ url: 'https://imagses.com/i/2025/04/29/200844.webp', title: '海角轮社', link: 'https://d1228o9tl6oncd.cloudfront.net/?dc=YJWKCC/' },
+				
+				{ url: 'https://img.erpweb.eu.org/imgs/2025/04/a67f6df2ca1e5bdc.gif', title: '好色', link: 'https://dadv5i1ulorg5.cloudfront.net/?dc=YJWKCC/' },
+				
+				{ url: 'https://imagses.com/i/2025/04/07/102511.gif', title: '色情P', link: 'https://d3jdueu958xano.cloudfront.net/?dc=YJWKCC/' },
+				
+				{ url: 'https://tupiantuoguan.top/mimi/luolidao1.webp', title: '萝莉岛', link: 'https://adf1.wrxtaac.xyz/chan/lldapp0031/CSjT' },
+				
+				{ url: 'https://tupiantuoguan.top/mimi/soutong.webp', title: '搜同', link: 'https://e0b.isbackv.com/chan/st0489/cp3Q' },
+				
+				{ url: 'https://tupiantuoguan.top/mimi/haijiaoshequ2.webp', title: '海角涩', link: 'https://d1228o9tl6oncd.cloudfront.net/?dc=YJWKCC/' },
+				
+				{ url: 'https://www.yvtlq.top/images/35/200X200.gif', title: '乐米直播', link: 'https://154.31.217.51:8007/?840216' },
+				
+				
+				{ url: 'https://tupiantuoguan.top/mimi/haosexiansheng.webp', title: '好色先生', link: 'https://dadv5i1ulorg5.cloudfront.net/?dc=YJWKCC/' },
+				
+				{ url: 'https://tupiantuoguan.top/mimi/91anwangav.webp', title: '91暗网', link: 'https://d3j4hy69ezuhew.cloudfront.net/?dc=LXMD10' },
+				
+				{ url: 'https://www.yvtlq.top/images/35/200x200-rqi-z.gif', title: '现场直播', link: 'https://154.38.88.48:7029/?740178' },
+				
+				{ url: 'https://img.erpweb.eu.org/imgs/2025/08/307bb94c6611f3c3.gif', title: 'VX破解', link: 'https://d3buy2bp7y93h8.cloudfront.net/?dc=YJWKCC/' },
+				
+				{ url: 'https://shu1.ycjfpt.com/aw/150-aw.gif', title: '暗网直播', link: 'https://ktjbx7.rnp9ry.com/an/?channelCode=aw312n' },
+				
+				{ url: 'https://evdata-labs-prod.oss-cn-shanghai.aliyuncs.com/2025/09/17/cd691b8c670147bca60494e0782bfc347879.jpg', title: '春药商城', link: 'https://www.tnxaq220.vip/' },
+				
+				{ url: 'https://www.evsmc.cn/veh-upload/default/20251220151846_949/j100.gif', title: '金凤直播', link: 'https://ei7mrcdw1uw.jphr88888.com/jf/?channelCode=jf355c' },
+				
+				{ url: 'https://www.evsmc.cn/veh-upload/default/20251102144850_647/150_150(2_1.jpg', title: '附件约炮', link: 'https://www.evpnc220.vip:1280/' },
+				
+				{ url: 'https://www.evsmc.cn/veh-upload/default/20251120021943_90/1e55224b87c4584626b071de766603c46fa2e1d7.gif', title: '抖音直播', link: 'https://kwdybff20250120300192c.yjlsc2289361.vip:57009/1_dy/dydp2/etf/index.html?channelCode=WXVGHC92' },
+				
+				{ url: 'https://www.evsmc.cn/veh-upload/default/20251015121633_377/0df856dff7da4199820e9c9b86b217485597.gif', title: '秋月直播', link: 'https://3xmd.chinabjtdh.com/5598/1.html?channelCode=ly338' },
+				
+				{ url: 'https://sw-tu999.aeare.vip/sw/tu/100-2.gif', title: '色网直播', link: 'https://3nk126.58x7cx.com/icu/?channelCode=sdj150x' },
+				
+				{ url: 'https://evdata-labs-prod.oss-cn-shanghai.aliyuncs.com/2025/08/26/25f909d4edca4d7e89121f58f8d29349656.jpg', title: '熊猫体育', link: 'https://gyyd.8sk2z.com:8888/' },
+				
+				{ url: 'https://static.wixstatic.com/media/c0f302_5089463c01914c93a7bb08251083fd13~mv2.gif', title: '麻豆TV', link: 'https://b4ywwh2emeboc.dytkv1419415.vip:57009/1_dytv/dp1/qt.htm?plx412' },
+				
+				{ url: 'https://zbb.bbb.sbhyx7o1ru.com/sksp2.gif', title: '9涩视频', link: 'https://js1350270g.yzsfly.top/#/saticWeb?agent=1350270' },
+				
+				{ url: 'https://evdata-labs-prod.oss-cn-shanghai.aliyuncs.com/2025/09/17/5b8184b940c94ff4839ca15f6b1cd5df7746.jpg', title: '空降', link: 'https://www.evpnc220.vip:1280/' },
+				
+				{ url: 'https://imagses.com/i/2025/09/04/162325.gif', title: 'AV暗网', link: 'https://d1stj70wjbqh77.cloudfront.net/?dc=ZRJ31' },
+				
+				{ url: 'https://imagses.com/i/2025/06/17/171959.gif', title: '逼逼瑟曼', link: 'https://d21f6s3ddrolbe.cloudfront.net/?dc=ZRJ46/' },
+				
+				{ url: 'https://img.ccc5sss.cc/upload/site/20250122-1/ff5cade69cc63c50802271e874789f1e.gif', title: '不良人', link: 'https://3f2.zvzsuql.cc/chan/max0034/xFYE#/' },
+				{ url: 'https://imgsa.baidu.com/forum/pic/item/5ab5c9ea15ce36d3dc0bbc207cf33a87e950b196.jpg', title: '开元棋牌', link: 'http://tzgdv81wkzur-1134675892.ap-northeast-1.elb.amazonaws.com/?shareName=56160014cc' },
+				
+                { url: 'https://img.ccc5sss.cc/upload/site/20251226-1/18d49f4204e7d32b19228d128c6f3687.gif', title: '妻社', link: 'https://xn--n-492bo8cky0a3j1atby.qishegg49.com/ih5/?iuid=27570' },
+				
+				 { url: 'https://shippp.tutu1599.top/img/z123/baihuazhibo.gif', title: '九洲', link: 'https://bhzbaa.ddwangzb04.top/abc/' },
+				 
+				  { url: 'https://aispsp02.top/img/yj1.gif', title: 'XX直播', link: 'https://dixtymxo1wku.gxd4w1.xyz/?channelCode=dydh' },
+				  
+				   { url: 'https://壹陆柒.renshouxingjiao216.sbs/template/yxzhanv/image/bb.gif.gif', title: '超爽直播', link: 'https://idzge.ott68.com:10300/?code=940014&version=v2&downtime=3' },
+				   
+				    { url: 'https://壹陆柒.renshouxingjiao216.sbs/template/yxzhanv/image/%E6%80%A7%E7%A6%8F-logo04.gif', title: '乐咪', link: 'https://ocpju.59cmsn.com:10300/?code=840187&version=v8&downtime=3' },
+					
+					 { url: 'https://m1.cffjpg.com/20250528_150630351_NrY.gif', title: '无忧直播', link: 'https://tcaju.pmfqid.cn/?channelCode=wy698' },
+					 
+					  { url: 'https://www.yvtlq.top/images/35/200x200-rqi-z.gif', title: '人妻直播', link: 'https://huyru.9cw4msm.com:10300/?code=780001&version=v18&downtime=3' },
+					  
+					  
+					   { url: 'https://static.wixstatic.com/media/c0f302_5089463c01914c93a7bb08251083fd13~mv2.gif', title: '抖音片库', link: 'https://gqvdyvd20250120300222c.dytkv3476888.top:57009/1_dytv/dp1/index.html?channelCode=plx412' },
+				
+				{ url: 'https://evdata-labs-prod.oss-cn-shanghai.aliyuncs.com/2025/09/17/b42e53080cd844b9a95f5400d1a42a745216.jpg', title: '制服双飞', link: 'https://www.kdkue220.vip:1280/' },
+				
+				{ url: 'https://www.yvtlq.top/images/35/200%C3%97200-YJ2401.gif', title: '妖姬直播', link: 'https://rgebew.kxmi39.com:10300/v29/?h=1767136400667&tj=None&channelCode=xjgg253' },
+				
+				
+				{ url: 'https://zbb.bbb.sbhyx7o1ru.com/sksp2.gif', title: '黄瓜视频', link: 'https://gcvkn3.hctjofq.cn/c1.html?c=x1ym' },
+				
+				{ url: 'https://www.tibwf.top/images/35/SJ-yc-200X200-3.gif', title: '色戒直播', link: 'https://nrwevewq.lxer69.com:10300/v25/?h=1767136448413&tj=None&channelCode=240707t095' },
+				
+				{ url: 'https://www.tibwf.top/images/35/120-120-lc.gif', title: '绿茶直播', link: 'https://jerwcqw.hloo68.com:10300/v24/?h=1767136498000&tj=None&channelCode=xjgg040' },
+				
+				
+                { url: 'https://img.ccc5sss.cc/upload/site/20250429-1/d2be21ec26fce72c60da982ef7d38d6e.gif', title: '少妇直播', link: 'https://eqyqp.71utpj.com:10300/?code=640314&version=v13&downtime=3' }
+            ];
+            
+            imageData.forEach(data => {
+                const imageContainer = document.createElement('a');
+                imageContainer.className = 'small-image-container';
+                imageContainer.href = data.link;
+                imageContainer.target = '_blank';
+                
+                const image = document.createElement('img');
+                image.className = 'small-image';
+                image.src = data.url;
+                image.alt = data.title;
+                
+                // 确保图片加载完成后正确显示
+                image.onload = function() {
+                    // 如果图片加载失败，显示备用背景
+                    this.onerror = function() {
+                        this.style.display = 'none';
+                        imageContainer.style.backgroundImage = `url('https://picsum.photos/seed/fallback${Math.floor(Math.random() * 100)}/300/300.jpg')`;
+                        imageContainer.style.backgroundSize = 'contain';
+                        imageContainer.style.backgroundPosition = 'center';
+                        imageContainer.style.backgroundRepeat = 'no-repeat';
+                    };
+                };
+                
+                const overlay = document.createElement('div');
+                overlay.className = 'image-overlay';
+                overlay.textContent = data.title;
+                
+                imageContainer.appendChild(image);
+                imageContainer.appendChild(overlay);
+                imagesGrid.appendChild(imageContainer);
+            });
+        }
+        
+        // 生成导航项
+        function generateNavItems() {
+            const navGrid = document.getElementById('navGrid');
+            navGrid.innerHTML = '';
+            
+            // 导航数据：包含标题和链接
+            const navData = [
+                { title: '第一导航', link: 'https://20251231exct.diyi39.icu/123/?form=HBSL0&date=202512314' },
+                { title: '传送门', link: 'https://c66da5.csmendh9.com' },
+                { title: 'TIKTOK入口', link: 'https://叁叁ce18.fanppudu69.cc/好学/' },
+                { title: '91香蕉国产', link: '"https://vnuqqnnn.91xjgc146.xyz/%E6%8C%81%E4%B9%8B%E4%BB%A5%E6%81%927/?https://vnu6o.52crs345.xyz/%E5%8B%87%E6%95%A2/c8042e/' },
+                { title: '不良研究所', link: 'https://兒abcdef2梦1.midao6.xyz/热爱生活/' },
+                { title: 'AV集市', link: 'https://dwhs.avjishi2025.sbs/功到自然成/' },
+                { title: '深夜必备', link: 'https://Y2V0.sybbdh8.cc/高山流水/?from=diwyyang.cc' },
+                { title: '翻翻福利墙', link: 'https://鎊1p.fffqqq3.com/光4z俵-1288/' },
+				{ title: '星空入口', link: 'https://蔑义昷读.01heiliaomimi.com/漓稽讎嬭/a379-dk3a.html' },
+                { title: '千度导航', link: 'https://伺檳睸飽9.qddhpixue0.cc/e厥丹覇0' },
+                { title: '神秘岛屿', link: 'https://籩耕d.shenmidao1.cc/呐月m3/?id=926' },
+                { title: '8X交欢会所', link: 'https://8xjhhsber.top/仈杈/linka/' },
+                { title: '小嫂嫂导航', link: 'https://de45f.xss2csss14s.cc/xss/?from=diwangdh66' },
+                { title: '成人色导航', link: 'https://5bde62.52crs35.com/雛t7/' },
+                { title: '逗妇乳导航', link: 'https://粺韝7654.df66r.cc/阳光/' },
+                { title: '黑色360导航', link: 'https://hs360.40heise360dh.cc/heise/' },
+                { title: '深夜看片', link: 'https://Y2V0.sybbdh8.cc/高山流水/?from=diwyyang.cc' },
+                { title: '萝莉岛VIP', link: 'https://fkp8c.ivvps2025.buzz/p7ra91y/' },
+                { title: '悟空导航', link: 'https://慸慸.wkdhas5t.xyz/叺曄/' },
+                { title: '网曝研究所', link: 'https://wbyjs.wbyjs4.top/wbyjs/?id=diwang' },
+                { title: '黑料福利网', link: 'https://hye30th.xyz/go/' },
+                { title: 'AV研究所', link: 'https://垻伺aa3.haoppqaz19.cc/好学/' },
+                { title: '制服癖导航', link: 'https://manage.izfp6.buzz/go/' },
+				
+				{ title: '91热播网', link: 'https://19me2r9199.91rbwnet.buzz/vod/?utm_source=20251231exct.diyi39.icu' },
+                { title: '黄色仓库', link: 'https://ghg.mshjj6.buzz/?referrer=20251231exct.diyi39.icu' },
+                { title: '51萝莉', link: 'https://xg8jsp.51luoli07.icu/' },
+                { title: 'AV视频', link: 'https://ai.aisp15.cc/rukou/?tj=dydh' },
+                { title: '777成人网', link: 'https://leaves-fall-gracefully.777hub107.xyz/label/sort999/' },
+                { title: '麻豆视频', link: 'https://www.madoav1.cc/123/?id=dydh' },
+				
+                { title: '阅女阁', link: 'https://火影-168-ApBNo.yngdh.cc/kk/' },
+                { title: '第一找片网', link: 'https://fcagxf46c.ganbendhf4.cc/gg/?from=321' },
+                { title: '水帘洞导航', link: 'https://imagebase.52sld.buzz/link/' },
+                { title: '秘密入口', link: 'https://www.mimi2024.cc/link' },
+                { title: '三千佳丽', link: 'https://陆陆fe18.jiaddaap62.cc/富强/' },
+                { title: 'X站入口', link: 'https://xzrk.xzrk4.top/xzrk/?id=diwang' },
+                { title: 'S级通道', link: 'https://stdtwo001.xyz/haven/port.html?for=ixfjsw' },
+                
+            ];
+            
+            navData.forEach(data => {
+                const navItem = document.createElement('a');
+                navItem.className = 'nav-item';
+                navItem.href = data.link;
+                navItem.target = '_blank';
+                navItem.textContent = data.title;
+                
+                navGrid.appendChild(navItem);
+            });
+        }
+        
+        // 初始化页面
+        generateImages();
+        generateNavItems();
     </script>
-</body>
+	<div class="faq">
+<a onclick="addFavorite(window.location,document.title)" href="javascript:void(0)"><div class="faq_scj" id="scj"></div></a>
 </html>
